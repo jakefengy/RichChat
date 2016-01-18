@@ -64,7 +64,7 @@
         android:visibility="gone">
 
         <FrameLayout
-            android:id="@+id/fl_function"
+            android:id="@+id/toolbox_frame_function"
             android:layout_width="match_parent"
             android:layout_height="160dp" />
 

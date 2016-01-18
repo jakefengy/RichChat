@@ -29,8 +29,8 @@ public class FaceItemFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.face_item_fragment, container, false);
-        recyclerView = (RecyclerView) view.findViewById(R.id.face_contain);
+        View view = inflater.inflate(R.layout.fragment_face_item, container, false);
+        recyclerView = (RecyclerView) view.findViewById(R.id.face_item_contain);
 
         return view;
     }

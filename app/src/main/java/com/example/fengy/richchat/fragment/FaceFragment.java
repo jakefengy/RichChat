@@ -28,7 +28,7 @@ public class FaceFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.face_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_face, container, false);
         facePager = (ViewPager) view.findViewById(R.id.face_pager);
         pagePointLayout = (LinearLayout) view.findViewById(R.id.face_point);
         return view;

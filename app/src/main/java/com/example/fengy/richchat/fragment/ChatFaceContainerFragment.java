@@ -24,8 +24,8 @@ public class ChatFaceContainerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.face_container_fragment, container, false);
-        faceContainerPager = (ViewPager) view.findViewById(R.id.container);
+        View view = inflater.inflate(R.layout.fragment_face_container, container, false);
+        faceContainerPager = (ViewPager) view.findViewById(R.id.face_container);
         return view;
     }
 

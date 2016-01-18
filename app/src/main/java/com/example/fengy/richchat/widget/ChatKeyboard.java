@@ -98,8 +98,8 @@ public class ChatKeyboard extends RelativeLayout implements SoftKeyboardStateHel
 
         ((FragmentActivity) getContext()).getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.fl_function, chatFaceFragment)
-                .add(R.id.fl_function, chatFuncFragment)
+                .add(R.id.toolbox_frame_function, chatFaceFragment)
+                .add(R.id.toolbox_frame_function, chatFuncFragment)
                 .commit();
 
         ((FragmentActivity) getContext()).getSupportFragmentManager()
