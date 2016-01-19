@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -51,7 +52,14 @@ public class ChatKeyboard extends RelativeLayout implements SoftKeyboardStateHel
 
     private Context context;
     private OnKeyboardOperationListener listener;
+    private OnResizeListener resizeListener;
     private SoftKeyboardStateHelper mKeyboardHelper;
+
+    // 记录高度
+    private int keyboardHeightInPx = 0;
+    private int layoutHeightInPx = 320;
+    private int resizeHeightInPx = 0;
+    private int lastResizeHeight = resizeHeightInPx;
 
     public ChatKeyboard(Context context) {
         super(context);
@@ -197,11 +205,14 @@ public class ChatKeyboard extends RelativeLayout implements SoftKeyboardStateHel
 
     @Override
     public void onSoftKeyboardOpened(int keyboardHeightInPx) {
+        this.keyboardHeightInPx = keyboardHeightInPx;
         hideLayout();
     }
 
     @Override
     public void onSoftKeyboardClosed() {
+        this.keyboardHeightInPx = 0;
+        check();
     }
 
     public EditText getEditTextBox() {
@@ -215,6 +226,16 @@ public class ChatKeyboard extends RelativeLayout implements SoftKeyboardStateHel
             @Override
             public void run() {
                 mRlFace.setVisibility(View.VISIBLE);
+
+                ViewTreeObserver vto = mRlFace.getViewTreeObserver();
+                vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        mRlFace.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                        layoutHeightInPx = mRlFace.getHeight();
+                        check();
+                    }
+                });
             }
         }, 50);
     }
@@ -224,6 +245,7 @@ public class ChatKeyboard extends RelativeLayout implements SoftKeyboardStateHel
     }
 
     public void hideLayout() {
+        layoutHeightInPx = 0;
         mRlFace.setVisibility(View.GONE);
         if (mBtnFace.isChecked()) {
             mBtnFace.setChecked(false);
@@ -231,6 +253,8 @@ public class ChatKeyboard extends RelativeLayout implements SoftKeyboardStateHel
         if (mBtnMore.isChecked()) {
             mBtnMore.setChecked(false);
         }
+
+        check();
     }
 
     /**
@@ -249,6 +273,19 @@ public class ChatKeyboard extends RelativeLayout implements SoftKeyboardStateHel
     }
 
     /**
+     * 关闭软键盘、关闭表情区域
+     *
+     * @param context
+     */
+    public void hideAllKeyboard(Context context) {
+        hideLayout();
+        hideKeyboard(context);
+        this.keyboardHeightInPx = 0;
+        this.layoutHeightInPx = 0;
+        check();
+    }
+
+    /**
      * 显示软键盘
      */
     public static void showKeyboard(Context context) {
@@ -264,6 +301,23 @@ public class ChatKeyboard extends RelativeLayout implements SoftKeyboardStateHel
 
     public void setOnKeyboardOperationListener(OnKeyboardOperationListener onKeyboardOperationListener) {
         this.listener = onKeyboardOperationListener;
+    }
+
+    // Interface
+    private void check() {
+        resizeHeightInPx = Math.max(layoutHeightInPx, keyboardHeightInPx);
+        if (resizeListener != null && lastResizeHeight != resizeHeightInPx) {
+            resizeListener.onResize(resizeHeightInPx);
+            lastResizeHeight = resizeHeightInPx;
+        }
+    }
+
+    public void setResizeListener(OnResizeListener resizeListener) {
+        this.resizeListener = resizeListener;
+    }
+
+    public interface OnResizeListener {
+        void onResize(int heightInPx);
     }
 
 }

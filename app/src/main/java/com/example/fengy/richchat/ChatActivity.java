@@ -5,11 +5,13 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.Toast;
-
 
 import com.example.fengy.richchat.action.OnKeyboardOperationListener;
 import com.example.fengy.richchat.adapter.ChatAdapter;
@@ -39,7 +41,7 @@ public class ChatActivity extends AppCompatActivity {
 
         initMessageInputToolBox();
         initListView();
-
+        initHeight();
     }
 
     private void initMessageInputToolBox() {
@@ -49,7 +51,7 @@ public class ChatActivity extends AppCompatActivity {
                 adapter.addMsg("From Tom: " + content);
 
                 adapter.addMsg("Reply Tom: I received " + content);
-
+                moveToLast();
             }
 
             @Override
@@ -79,6 +81,19 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        box.setResizeListener(new ChatKeyboard.OnResizeListener() {
+            @Override
+            public void onResize(int heightInPx) {
+
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mRealListView.getLayoutParams();
+                lp.height = listHeightInPx - heightInPx;
+                mRealListView.setLayoutParams(lp);
+                mRealListView.postInvalidate();
+                moveToLast();
+
+            }
+        });
+
         mRealListView.setOnTouchListener(getOnTouchListener());
     }
 
@@ -98,6 +113,26 @@ public class ChatActivity extends AppCompatActivity {
         mRealListView.setAdapter(adapter);
     }
 
+    private void moveToLast() {
+        mRealListView.smoothScrollToPosition(adapter.getItemCount() - 1);
+    }
+
+    private int listHeightInPx;
+
+    private void initHeight() {
+
+        ViewTreeObserver vto = mRealListView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mRealListView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                listHeightInPx = mRealListView.getHeight();
+                Log.i("KeyboardTag", "RecyclerView Original Height is " + mRealListView.getHeight());
+            }
+        });
+
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && box.isShow()) {
@@ -113,8 +148,7 @@ public class ChatActivity extends AppCompatActivity {
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                box.hideLayout();
-                box.hideKeyboard(ChatActivity.this);
+                box.hideAllKeyboard(ChatActivity.this);
                 return false;
             }
         };
