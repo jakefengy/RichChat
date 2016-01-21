@@ -56,6 +56,9 @@ public class RichTextView extends TextView {
     private HashMap<Integer, Face> faceHashMap;
     private OnFaceClickListener onFaceClickListener;
 
+    // Save Text
+    private String inputText = "";
+
     public void setRichText(String input) {
 
         Spanned spanned = Html.fromHtml(matchFace(input), getImageGetterInstance(), null);
@@ -122,14 +125,15 @@ public class RichTextView extends TextView {
         Html.ImageGetter imgGetter = new Html.ImageGetter() {
             @Override
             public Drawable getDrawable(String source) {
-                int fontH = (int) (getResources().getDimension(R.dimen.text_font) * 1.5);
+                int temp = (int) (getResources().getDimension(R.dimen.abc_action_bar_content_inset_material) * 1.5);
                 Drawable d = file2Drawable(source);
-                int height = fontH;
-                int width = (int) ((float) d.getIntrinsicWidth() / (float) d.getIntrinsicHeight()) * fontH;
-                if (width == 0) {
-                    width = d.getIntrinsicWidth();
+                float dw = d.getIntrinsicWidth();
+                float dh = d.getIntrinsicHeight();
+                if (dw >= dh) {
+                    d.setBounds(0, 0, (int) (dw / dh * temp), temp);
+                } else {
+                    d.setBounds(0, 0, temp, (int) (dh / dw * temp));
                 }
-                d.setBounds(0, 0, width, height);
                 return d;
             }
         };
@@ -148,6 +152,11 @@ public class RichTextView extends TextView {
         }
 
         return d;
+    }
+
+    @Override
+    public CharSequence getText() {
+        return inputText;
     }
 
     //
